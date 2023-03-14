@@ -8,10 +8,9 @@ export default function App() {
   React.useEffect(() => {
     fetch(`${SERVER_BASE_URL}/fer`)
       .then((res) => res.json())
-      .then((data) => setData(data));
+      .then((data) => setData(data))
+      .catch((err) => alert(err.message));
   }, []);
-
-  console.log(data);
 
   return (
     <div className="container p-4 flex flex-col gap-4 items-center">
@@ -19,10 +18,12 @@ export default function App() {
       {data?.map((item) => (
         <div
           key={item._id}
-          className="max-w-lg w-full flex flex-col gap-2 bg-gray-100 rounded-2xl overflow-hidden p-4"
+          className="max-w-lg w-full flex flex-col gap-2 bg-gray-50 rounded-2xl overflow-hidden p-4"
         >
-          <h2 className="bg-gray-200 p-4 rounded-lg">{item?.emotion}</h2>
-          <p className="text-xs self-end text-gray-600">{item?.updatedAt}</p>
+          <h2 className="bg-gray-100 p-4 rounded-lg">{item?.emotion}</h2>
+          <p className="text-xs self-end text-gray-600">
+            {new Date(item?.timestamp).toLocaleString()}
+          </p>
         </div>
       ))}
     </div>
