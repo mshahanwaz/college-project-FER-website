@@ -4,12 +4,21 @@ import useSound from "use-sound";
 
 import alertSound from "./alert.mp3";
 
-const SERVER_BASE_URL = "http://localhost:8800";
+const SERVER_BASE_URL = "https://fer-emotions.onrender.com";
 
 const colors = {
-  angry: "bg-red-500",
-  sad: "bg-orange-500",
-  surprise: "bg-yellow-500",
+  angry: {
+    bg: "bg-red-500",
+    fg: "bg-red-100",
+  },
+  sad: {
+    bg: "bg-orange-500",
+    fg: "bg-orange-100",
+  },
+  surprise: {
+    bg: "bg-yellow-500",
+    fg: "bg-yellow-100",
+  },
 };
 
 export default function App() {
@@ -36,12 +45,11 @@ export default function App() {
     fetchData();
     let interval = setInterval(() => fetchData(), 2000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
     play();
-  }, [data]);
+  }, [data, play]);
 
   console.log(data);
 
@@ -51,12 +59,18 @@ export default function App() {
 
   return (
     <div id="app" className="container p-4 flex flex-col gap-4 items-center">
-      <h1 className="font-bold text-lg">FER frontend</h1>
-      {/* <button onClick={play}>Play</button> */}
+      <h1 className="font-bold text-lg">FER Notification System</h1>
       {data?.map((item) => (
         <div
           key={item._id}
-          className="max-w-lg w-full flex flex-col gap-2 rounded-2xl bg-gray-50 overflow-hidden p-4"
+          className={cn(
+            "max-w-lg w-full flex flex-col gap-2 rounded-2xl overflow-hidden p-4",
+            item?.emotion &&
+              item?.emotion?.length > 0 &&
+              colors.hasOwnProperty(item?.emotion?.toLowerCase())
+              ? colors[item?.emotion?.toLowerCase()].fg
+              : "bg-gray-100"
+          )}
         >
           <h2
             className={cn(
@@ -64,8 +78,8 @@ export default function App() {
               item?.emotion &&
                 item?.emotion?.length > 0 &&
                 colors.hasOwnProperty(item?.emotion?.toLowerCase())
-                ? colors[item?.emotion?.toLowerCase()]
-                : "bg-gray-100"
+                ? colors[item?.emotion?.toLowerCase()].bg
+                : "bg-gray-200"
             )}
           >
             {item?.emotion}
