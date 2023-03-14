@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
 
-function App() {
+const SERVER_BASE_URL = "http://localhost:8800";
+
+export default function App() {
+  const [data, setData] = React.useState(null);
+
+  React.useEffect(() => {
+    fetch(`${SERVER_BASE_URL}/fer`)
+      .then((res) => res.json())
+      .then((data) => setData(data));
+  }, []);
+
+  console.log(data);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className="container p-4 flex flex-col gap-4 items-center">
+      <h1 className="font-bold text-lg">FER frontend</h1>
+      {data?.map((item) => (
+        <div
+          key={item._id}
+          className="max-w-lg w-full flex flex-col gap-2 bg-gray-100 rounded-2xl overflow-hidden p-4"
         >
-          Learn React
-        </a>
-      </header>
+          <h2 className="bg-gray-200 p-4 rounded-lg">{item?.emotion}</h2>
+          <p className="text-xs self-end text-gray-600">{item?.updatedAt}</p>
+        </div>
+      ))}
     </div>
   );
 }
-
-export default App;
