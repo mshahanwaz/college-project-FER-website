@@ -48,7 +48,9 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
-    play();
+    if (data[0].emotion === "Happy") {
+      play();
+    }
   }, [data, play]);
 
   console.log(data);
