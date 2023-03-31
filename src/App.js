@@ -105,6 +105,11 @@ export default function App() {
     setFrequencyWithDuration(frequency);
   }
 
+  function handleInputChange(e) {
+    let value = +e.target.value;
+    if (value > -1 && value < 9999999999) setDuration(e.target.value);
+  }
+
   React.useEffect(() => {
     fetchFrequency();
     fetchFrequencyWithDuration();
@@ -189,7 +194,7 @@ export default function App() {
           </div>
         </div>
         <div className="order-3 lg:order-none border border-gray-200 w-full overflow-hidden rounded-[24px]">
-          <div className="h-[calc(100vh-64px)] overflow-auto flex flex-col gap-4 p-4 bg-white">
+          <div className="h-[calc(100vh-66px)] overflow-auto flex flex-col gap-4 p-4 bg-white">
             {emotionList && emotionList?.length > 0 ? (
               emotionList?.map((emotion) => (
                 <div
@@ -260,10 +265,12 @@ export default function App() {
           <div className="w-full pt-4">
             <input
               type="number"
+              min={0}
+              max={60 * 24}
               placeholder="Enter duration in minutes"
               value={duration}
               className="px-3 py-2 w-full border-2 border-gray-300 bg-gray-50 focus:border-blue-500 focus:outline-none rounded-lg"
-              onChange={(e) => setDuration(e.target.value)}
+              onChange={handleInputChange}
             />
           </div>
         </div>
