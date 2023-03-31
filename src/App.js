@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
 import React from "react";
 import useSound from "use-sound";
@@ -11,6 +12,7 @@ import {
   SadIcon,
   SurpriseIcon,
 } from "./assets/icons";
+import Loader from "./components/Loader";
 
 const SERVER_BASE_URL = "https://fer-emotions.onrender.com";
 
@@ -37,14 +39,6 @@ const COLORS = {
   },
 };
 
-const EMOTIONS_FREQUENCY = {
-  happy: 873,
-  angry: 29,
-  sad: 0,
-  surprise: 19,
-  neutral: 64,
-};
-
 const EMOJI_ICONS = {
   angry: <AngryIcon className="w-6 h-6" />,
   sad: <SadIcon className="w-6 h-6" />,
@@ -57,29 +51,76 @@ export default function App() {
   const [emotionList, setEmotionsList] = React.useState(() =>
     JSON.parse(localStorage.getItem("data") || "[]")
   );
+  const [frequency, setFrequency] = React.useState({});
+  const [frequencyWithDuration, setFrequencyWithDuration] = React.useState({});
+  const [duration, setDuration] = React.useState("3600");
+
   const [play] = useSound(alertSound);
 
-  React.useEffect(() => {
-    async function fetchData() {
-      const response = await axios.get(`${SERVER_BASE_URL}/fer`);
-      const localData = JSON.parse(localStorage.getItem("data"));
-      if (
-        localData &&
-        localData.length === response?.data?.length &&
-        localData.every(
-          (emotion, index) => emotion._id === response.data[index]._id
-        )
-      ) {
-        return;
-      }
-
-      localStorage.setItem("data", JSON.stringify(response.data));
-      setEmotionsList(response.data);
+  async function fetchData() {
+    const response = await axios.get(`${SERVER_BASE_URL}/fer`);
+    const localData = JSON.parse(localStorage.getItem("data"));
+    if (
+      localData &&
+      localData.length === response?.data?.length &&
+      localData.every(
+        (emotion, index) => emotion._id === response.data[index]._id
+      )
+    ) {
+      return;
     }
+
+    localStorage.setItem("data", JSON.stringify(response.data));
+    setEmotionsList(response.data);
+  }
+
+  async function fetchFrequency() {
+    const response = await axios.get(`${SERVER_BASE_URL}/fer/data`);
+    const { data } = response;
+    let frequencyList = Object.keys(data);
+    frequencyList.sort((a, b) => a.localeCompare(b));
+    let frequency = {};
+    frequencyList.forEach((emotion) => {
+      frequency = {
+        ...frequency,
+        [capitalize(emotion)]: data[emotion],
+      };
+    });
+    setFrequency(frequency);
+  }
+
+  async function fetchFrequencyWithDuration() {
+    const response = await axios.get(
+      `${SERVER_BASE_URL}/fer/data/${duration === "" ? 0 : +duration * 60}`
+    );
+    const { data } = response;
+    let frequencyList = Object.keys(data);
+    frequencyList.sort((a, b) => a.localeCompare(b));
+    let frequency = {};
+    frequencyList.forEach((emotion) => {
+      frequency = {
+        ...frequency,
+        [capitalize(emotion)]: data[emotion],
+      };
+    });
+    console.log(data);
+    setFrequencyWithDuration(frequency);
+  }
+
+  React.useEffect(() => {
+    fetchFrequency();
+    fetchFrequencyWithDuration();
     fetchData();
     // let interval = setInterval(() => fetchData(), 2000);
     // return () => clearInterval(interval);
   }, []);
+
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      fetchFrequencyWithDuration();
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [duration]);
 
   React.useEffect(() => {
     if (emotionList[0].emotion === "Happy") {
@@ -87,11 +128,17 @@ export default function App() {
     }
   }, [emotionList, play]);
 
-  console.log(emotionList);
+  // console.log(emotionList);
+
+  console.log({ duration });
+
+  const timeDuration = `${
+    +duration >= 60 ? `${Math.floor(+duration / 60)} hr` : ""
+  } ${+duration % 60 !== 0 ? `${+duration % 60} min` : "0 min"}`;
 
   return (
-    <div className="bg-gray-100 p-8 space-y-4 font-sans">
-      <h1 className="font-bold text-[60px] leading-[1.1] tracking-tight">
+    <div className="bg-gray-100 p-8 flex flex-col space-y-4 font-sans">
+      {/* <h1 className="font-bold text-[60px] leading-[1.1] tracking-tight">
         Facial Emotion Recognition System For Rehabilitation
       </h1>
       <h2 className="text-2xl font-bold space-x-6">
@@ -100,105 +147,115 @@ export default function App() {
       </h2>
       <p className="max-w-3xl">
         Lorem ipsum dolor sit amet consectetur adipisicing elit.
-      </p>
-      <div className="flex gap-8 pt-4">
-        <div className="p-4 rounded-[24px] bg-white h-fit">
+      </p> */}
+      <div className="flex gap-8">
+        <div className="p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
           <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
             <span>Emotion Frequency</span>
             <span>(till now)</span>
           </h3>
           <div className="p-4 flex flex-col gap-4">
-            {Object.keys(EMOTIONS_FREQUENCY).map((emotion) => (
+            {frequency && Object.keys(frequency).length > 0 ? (
+              Object.keys(frequency).map((emotion) => {
+                let emotionId = emotion;
+                emotionId = emotionId.toLowerCase();
+                return (
+                  <div
+                    key={emotion}
+                    className={cn(
+                      "flex items-center justify-between gap-8 font-medium",
+                      COLORS[emotionId].text
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span>{EMOJI_ICONS[emotionId]}</span>
+                      <span className="">{emotion}</span>
+                    </div>
+                    <span className="text-black font-bold text-2xl">
+                      {frequency[emotion]}
+                    </span>
+                  </div>
+                );
+              })
+            ) : (
+              <Loader />
+            )}
+          </div>
+        </div>
+        <div className="w-full overflow-hidden rounded-[24px]">
+          <div className="h-[calc(100vh-64px)] overflow-auto flex flex-col gap-4 p-4 bg-white">
+            {emotionList?.map((emotion) => (
               <div
-                key={emotion}
+                key={emotion._id}
                 className={cn(
-                  "flex items-center justify-between gap-8 font-medium",
-                  COLORS.hasOwnProperty(emotion)
-                    ? COLORS[emotion].text
+                  "flex flex-col gap-1",
+                  emotion?.emotion &&
+                    emotion?.emotion?.length > 0 &&
+                    COLORS.hasOwnProperty(emotion?.emotion?.toLowerCase())
+                    ? COLORS[emotion?.emotion?.toLowerCase()].text
                     : "text-gray-900"
                 )}
               >
-                <div className="flex items-center gap-4">
-                  <span className={COLORS[emotion].text}>
-                    {EMOJI_ICONS[emotion]}
-                  </span>
-                  <span className="">{capitalize(emotion)}</span>
-                </div>
-                <span className="text-black font-bold text-2xl">
-                  {EMOTIONS_FREQUENCY[emotion]}
-                </span>
+                <h3
+                  className={cn(
+                    "p-4 rounded-lg font-medium",
+                    emotion?.emotion &&
+                      emotion?.emotion?.length > 0 &&
+                      COLORS.hasOwnProperty(emotion?.emotion?.toLowerCase())
+                      ? COLORS[emotion?.emotion?.toLowerCase()].bg
+                      : "bg-gray-200"
+                  )}
+                >
+                  {emotion?.emotion}
+                </h3>
+                <p className="text-xs self-end font-medium text-gray-400">
+                  {moment(new Date(emotion?.timestamp)).fromNow()}
+                </p>
               </div>
             ))}
           </div>
         </div>
-        <div className="w-full flex flex-col gap-4 p-4 rounded-[24px] bg-white">
-          {emotionList?.map((emotion) => (
-            <div
-              key={emotion._id}
-              className={cn(
-                "flex flex-col gap-1",
-                emotion?.emotion &&
-                  emotion?.emotion?.length > 0 &&
-                  COLORS.hasOwnProperty(emotion?.emotion?.toLowerCase())
-                  ? COLORS[emotion?.emotion?.toLowerCase()].text
-                  : "text-gray-900"
-              )}
-            >
-              <h3
-                className={cn(
-                  "p-4 rounded-lg font-medium",
-                  emotion?.emotion &&
-                    emotion?.emotion?.length > 0 &&
-                    COLORS.hasOwnProperty(emotion?.emotion?.toLowerCase())
-                    ? COLORS[emotion?.emotion?.toLowerCase()].bg
-                    : "bg-gray-200"
-                )}
-              >
-                {emotion?.emotion}
-              </h3>
-              <p className="text-xs self-end font-medium text-gray-400">
-                {moment(new Date(emotion?.timestamp)).fromNow()}
-              </p>
-            </div>
-          ))}
-        </div>
-        <div className="space-y-4">
-          <div className="p-4 rounded-[24px] bg-white h-fit">
-            <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
-              <span>Emotions in 1hr 23min</span>
-            </h3>
-            <div className="p-4 flex flex-col gap-4">
-              {Object.keys(EMOTIONS_FREQUENCY).map((emotion) => (
-                <div
-                  key={emotion}
-                  className={cn(
-                    "flex items-center justify-between gap-8 font-medium",
-                    COLORS.hasOwnProperty(emotion)
-                      ? COLORS[emotion].text
-                      : "text-gray-900"
-                  )}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className={COLORS[emotion].text}>
-                      {EMOJI_ICONS[emotion]}
+        <div className="p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
+          <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
+            <span>Emotions in duration</span>
+            <span>{timeDuration}</span>
+          </h3>
+          <div className="p-4 flex flex-col gap-4">
+            {frequency && Object.keys(frequency).length > 0 ? (
+              Object.keys(frequencyWithDuration).map((emotion) => {
+                let emotionId = emotion;
+                emotionId = emotionId.toLowerCase();
+                return (
+                  <div
+                    key={emotion}
+                    className={cn(
+                      "flex items-center justify-between gap-8 font-medium",
+                      COLORS[emotionId].text
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span>{EMOJI_ICONS[emotionId]}</span>
+                      <span className="">{emotion}</span>
+                    </div>
+                    <span className="text-black font-bold text-2xl">
+                      {frequencyWithDuration[emotion]}
                     </span>
-                    <span className="">{capitalize(emotion)}</span>
                   </div>
-                  <span className="text-black font-bold text-2xl">
-                    {EMOTIONS_FREQUENCY[emotion]}
-                  </span>
-                </div>
-              ))}
-            </div>
+                );
+              })
+            ) : (
+              <Loader />
+            )}
           </div>
-          <form className="">
+          <div className="w-full pt-4">
             <input
               type="number"
-              placeholder="Enter duration"
-              defaultValue={10}
-              className="px-3 py-2 focus:outline-none focus:ring rounded"
+              placeholder="Enter duration in minutes"
+              value={duration}
+              className="px-3 py-2 w-full border-2 border-gray-300 focus:border-blue-500 focus:outline-none rounded-lg"
+              onChange={(e) => setDuration(e.target.value)}
             />
-          </form>
+          </div>
         </div>
       </div>
     </div>
