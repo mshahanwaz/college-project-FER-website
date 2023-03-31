@@ -2,8 +2,8 @@
 import axios from "axios";
 import React from "react";
 import useSound from "use-sound";
-import alertSound from "./alert.mp3";
-import { cn, capitalize } from "./utils";
+import alertSound from "./assets/sound/alert.mp3";
+import { cn, capitalize } from "./core/utils";
 import moment from "moment";
 import {
   AngryIcon,
@@ -12,7 +12,7 @@ import {
   SadIcon,
   SurpriseIcon,
 } from "./assets/icons";
-import Loader from "./components/Loader";
+import Loader from "./core/components/Loader";
 
 const SERVER_BASE_URL = "https://fer-emotions.onrender.com";
 
@@ -54,7 +54,6 @@ export default function App() {
   const [frequency, setFrequency] = React.useState({});
   const [frequencyWithDuration, setFrequencyWithDuration] = React.useState({});
   const [duration, setDuration] = React.useState("3600");
-
   const [play] = useSound(alertSound);
 
   async function fetchData() {
@@ -122,7 +121,13 @@ export default function App() {
   }, [duration]);
 
   React.useEffect(() => {
-    if (emotionList[0].emotion === "Happy") {
+    if (
+      emotionList &&
+      emotionList?.length > 0 &&
+      Object.keys(emotionList[0]).length > 0 &&
+      emotionList[0].hasOwnProperty("emotion") &&
+      emotionList[0]?.emotion === "Happy"
+    ) {
       play();
     }
   }, [emotionList, play]);
@@ -149,7 +154,7 @@ export default function App() {
       <p className="max-w-3xl">
         Lorem ipsum dolor sit amet consectetur adipisicing elit.
       </p> */}
-      <div className="flex gap-8">
+      <div className="flex flex-col items-center lg:items-start lg:flex-row gap-8">
         <div className="border border-gray-200 p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
           <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
             <span>Emotion Frequency</span>
@@ -183,37 +188,41 @@ export default function App() {
             )}
           </div>
         </div>
-        <div className="border border-gray-200 w-full overflow-hidden rounded-[24px]">
+        <div className="order-3 lg:order-none border border-gray-200 w-full overflow-hidden rounded-[24px]">
           <div className="h-[calc(100vh-64px)] overflow-auto flex flex-col gap-4 p-4 bg-white">
-            {emotionList?.map((emotion) => (
-              <div
-                key={emotion._id}
-                className={cn(
-                  "flex flex-col gap-1",
-                  emotion?.emotion &&
-                    emotion?.emotion?.length > 0 &&
-                    COLORS.hasOwnProperty(emotion?.emotion?.toLowerCase())
-                    ? COLORS[emotion?.emotion?.toLowerCase()].text
-                    : "text-gray-900"
-                )}
-              >
-                <h3
+            {emotionList && emotionList?.length > 0 ? (
+              emotionList?.map((emotion) => (
+                <div
+                  key={emotion._id}
                   className={cn(
-                    "p-4 rounded-lg font-medium",
+                    "flex flex-col gap-1",
                     emotion?.emotion &&
                       emotion?.emotion?.length > 0 &&
                       COLORS.hasOwnProperty(emotion?.emotion?.toLowerCase())
-                      ? COLORS[emotion?.emotion?.toLowerCase()].bg
-                      : "bg-gray-200"
+                      ? COLORS[emotion?.emotion?.toLowerCase()].text
+                      : "text-gray-900"
                   )}
                 >
-                  {emotion?.emotion}
-                </h3>
-                <p className="text-xs self-end font-medium text-gray-400">
-                  {moment(new Date(emotion?.timestamp)).fromNow()}
-                </p>
-              </div>
-            ))}
+                  <h3
+                    className={cn(
+                      "p-4 rounded-lg font-medium",
+                      emotion?.emotion &&
+                        emotion?.emotion?.length > 0 &&
+                        COLORS.hasOwnProperty(emotion?.emotion?.toLowerCase())
+                        ? COLORS[emotion?.emotion?.toLowerCase()].bg
+                        : "bg-gray-200"
+                    )}
+                  >
+                    {emotion?.emotion}
+                  </h3>
+                  <p className="text-xs self-end font-medium text-gray-400">
+                    {moment(new Date(emotion?.timestamp)).fromNow()}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <Loader />
+            )}
           </div>
         </div>
         <div className="border border-gray-200 p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
@@ -253,7 +262,7 @@ export default function App() {
               type="number"
               placeholder="Enter duration in minutes"
               value={duration}
-              className="px-3 py-2 w-full border-2 border-gray-300 focus:border-blue-500 focus:outline-none rounded-lg"
+              className="px-3 py-2 w-full border-2 border-gray-300 bg-gray-50 focus:border-blue-500 focus:outline-none rounded-lg"
               onChange={(e) => setDuration(e.target.value)}
             />
           </div>
