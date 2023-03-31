@@ -110,8 +110,8 @@ export default function App() {
     fetchFrequency();
     fetchFrequencyWithDuration();
     fetchData();
-    // let interval = setInterval(() => fetchData(), 2000);
-    // return () => clearInterval(interval);
+    let interval = setInterval(() => fetchData(), 2000);
+    return () => clearInterval(interval);
   }, []);
 
   React.useEffect(() => {
