@@ -103,7 +103,6 @@ export default function App() {
         [capitalize(emotion)]: data[emotion],
       };
     });
-    console.log(data);
     setFrequencyWithDuration(frequency);
   }
 
@@ -128,13 +127,15 @@ export default function App() {
     }
   }, [emotionList, play]);
 
-  // console.log(emotionList);
-
-  console.log({ duration });
-
   const timeDuration = `${
     +duration >= 60 ? `${Math.floor(+duration / 60)} hr` : ""
-  } ${+duration % 60 !== 0 ? `${+duration % 60} min` : "0 min"}`;
+  } ${
+    +duration % 60 !== 0
+      ? `${+duration % 60} min`
+      : +duration === 0
+      ? "0 min"
+      : ""
+  }`;
 
   return (
     <div className="bg-gray-100 p-8 flex flex-col space-y-4 font-sans">
@@ -149,7 +150,7 @@ export default function App() {
         Lorem ipsum dolor sit amet consectetur adipisicing elit.
       </p> */}
       <div className="flex gap-8">
-        <div className="p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
+        <div className="border border-gray-200 p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
           <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
             <span>Emotion Frequency</span>
             <span>(till now)</span>
@@ -182,7 +183,7 @@ export default function App() {
             )}
           </div>
         </div>
-        <div className="w-full overflow-hidden rounded-[24px]">
+        <div className="border border-gray-200 w-full overflow-hidden rounded-[24px]">
           <div className="h-[calc(100vh-64px)] overflow-auto flex flex-col gap-4 p-4 bg-white">
             {emotionList?.map((emotion) => (
               <div
@@ -215,7 +216,7 @@ export default function App() {
             ))}
           </div>
         </div>
-        <div className="p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
+        <div className="border border-gray-200 p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
           <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
             <span>Emotions in duration</span>
             <span>{timeDuration}</span>
