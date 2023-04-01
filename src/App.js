@@ -47,6 +47,9 @@ const EMOJI_ICONS = {
   happy: <HappyIcon className="w-6 h-6" />,
 };
 
+const DESCRIPTION =
+  "A facial emotion recognition system for rehabilitation uses machine learning to identify and analyze emotions from facial expressions, assisting individuals with emotional regulation difficulties. The system provides real-time feedback and progress tracking to patients and therapists, improving mental health rehabilitation.";
+
 export default function App() {
   const [emotionList, setEmotionsList] = React.useState(() =>
     JSON.parse(localStorage.getItem("data") || "[]")
@@ -149,16 +152,14 @@ export default function App() {
 
   return (
     <div className="bg-gray-100 p-8 flex flex-col space-y-4 font-sans">
-      {/* <h1 className="font-bold text-[60px] leading-[1.1] tracking-tight">
+      <h1 className="font-bold text-[48px] leading-[1.1] tracking-tight">
         Facial Emotion Recognition System For Rehabilitation
       </h1>
       <h2 className="text-2xl font-bold space-x-6">
-        <span className="">CSMIR Lab</span>
-        <span className="">Dr. Chandra Prakash</span>
+        <span>CSMIR Lab</span>
+        <span>Dr. Chandra Prakash</span>
       </h2>
-      <p className="max-w-3xl">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-      </p> */}
+      <p className="pb-6">{DESCRIPTION}</p>
       <div className="flex flex-col items-center lg:items-start lg:flex-row gap-8">
         <div className="border border-gray-200 p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
           <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
