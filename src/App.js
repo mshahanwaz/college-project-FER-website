@@ -233,7 +233,7 @@ export default function App() {
         </div>
         <div className="border border-gray-200 p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
           <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
-            <span>Emotions in duration</span>
+            <span>Emotions in last</span>
             <span>{timeDuration}</span>
           </h3>
           <div className="p-4 flex flex-col gap-4">
