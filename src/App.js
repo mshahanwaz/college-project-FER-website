@@ -265,8 +265,6 @@ export default function App() {
           <div className="w-full pt-4">
             <input
               type="number"
-              min={0}
-              max={60 * 24}
               placeholder="Enter duration in minutes"
               value={duration}
               className="px-3 py-2 w-full border-2 border-gray-300 bg-gray-50 focus:border-blue-500 focus:outline-none rounded-lg"
