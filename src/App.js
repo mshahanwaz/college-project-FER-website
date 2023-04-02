@@ -56,7 +56,7 @@ export default function App() {
   );
   const [frequency, setFrequency] = React.useState({});
   const [frequencyWithDuration, setFrequencyWithDuration] = React.useState({});
-  const [duration, setDuration] = React.useState("3600");
+  const [duration, setDuration] = React.useState("1440");
   const [play] = useSound(alertSound);
 
   async function fetchData() {
@@ -140,15 +140,12 @@ export default function App() {
     }
   }, [emotionList, play]);
 
-  const timeDuration = `${
-    +duration >= 60 ? `${Math.floor(+duration / 60)} hr` : ""
-  } ${
-    +duration % 60 !== 0
-      ? `${+duration % 60} min`
-      : +duration === 0
-      ? "0 min"
-      : ""
-  }`;
+  let days = Math.floor(+duration / 60 / 24);
+  let hours = Math.floor(+duration / 60) - days * 24;
+  let minutes = +duration % 60;
+  const timeDuration = `${days ? days + "d" : ""} ${hours ? hours + "h" : ""} ${
+    minutes ? minutes + "m" : ""
+  } ${duration === "" ? "0m" : ""}`;
 
   return (
     <div className="bg-gray-100 p-8 flex flex-col space-y-4 font-sans">
