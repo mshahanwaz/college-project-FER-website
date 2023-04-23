@@ -13,6 +13,7 @@ import {
   SurpriseIcon,
 } from "./assets/icons";
 import Loader from "./core/components/Loader";
+import PieChart from "./PieChart";
 
 const SERVER_BASE_URL = "https://fer-emotions.onrender.com";
 
@@ -57,6 +58,38 @@ export default function App() {
   const [frequency, setFrequency] = React.useState({});
   const [frequencyWithDuration, setFrequencyWithDuration] = React.useState({});
   const [duration, setDuration] = React.useState("1440");
+  const [pieData, setPieData] = React.useState([
+    {
+      id: "angry",
+      label: "Angry",
+      value: 0,
+      color: "#dc2626",
+    },
+    {
+      id: "sad",
+      label: "Sad",
+      value: 0,
+      color: "#ea580c",
+    },
+    {
+      id: "surprise",
+      label: "Surprise",
+      value: 0,
+      color: "#ca8a04",
+    },
+    {
+      id: "neutral",
+      label: "Neutral",
+      value: 0,
+      color: "#4b5563",
+    },
+    {
+      id: "happy",
+      label: "Happy",
+      value: 0,
+      color: "#16a34a",
+    },
+  ]);
   const [play] = useSound(alertSound);
 
   async function fetchData() {
@@ -83,9 +116,20 @@ export default function App() {
     frequencyList.sort((a, b) => a.localeCompare(b));
     let frequency = {};
     frequencyList.forEach((emotion) => {
+      setPieData((prev) =>
+        prev.map((item) => {
+          if (item.label === emotion) {
+            return {
+              ...item,
+              value: data[emotion],
+            };
+          }
+          return item;
+        })
+      );
       frequency = {
         ...frequency,
-        [capitalize(emotion)]: data[emotion],
+        [emotion]: data[emotion],
       };
     });
     setFrequency(frequency);
@@ -158,34 +202,43 @@ export default function App() {
       </h2>
       <p className="pb-6">{DESCRIPTION}</p>
       <div className="flex flex-col items-center lg:items-start lg:flex-row gap-8">
-        <div className="border border-gray-200 p-4 max-w-[300px] w-full rounded-[24px] bg-white h-fit">
-          <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
-            <span>Emotion Frequency</span>
-            <span>(till now)</span>
-          </h3>
-          <div className="p-4 flex flex-col gap-4">
-            {frequency && Object.keys(frequency).length > 0 ? (
-              Object.keys(frequency).map((emotion) => {
-                let emotionId = emotion;
-                emotionId = emotionId.toLowerCase();
-                return (
-                  <div
-                    key={emotion}
-                    className={cn(
-                      "flex items-center justify-between gap-8 font-medium",
-                      COLORS[emotionId].text
-                    )}
-                  >
-                    <div className="flex items-center gap-4">
-                      <span>{EMOJI_ICONS[emotionId]}</span>
-                      <span className="">{emotion}</span>
+        <div className="flex flex-col gap-4 max-w-[300px] w-full">
+          <div className="border border-gray-200 p-4 rounded-[24px] bg-white h-fit">
+            <h3 className="text-center text-lg font-bold flex flex-col whitespace-nowrap">
+              <span>Emotion Frequency</span>
+              <span>(till now)</span>
+            </h3>
+            <div className="p-4 flex flex-col gap-4">
+              {frequency && Object.keys(frequency).length > 0 ? (
+                Object.keys(frequency).map((emotion) => {
+                  let emotionId = emotion;
+                  emotionId = emotionId.toLowerCase();
+                  return (
+                    <div
+                      key={emotion}
+                      className={cn(
+                        "flex items-center justify-between gap-8 font-medium",
+                        COLORS[emotionId].text
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <span>{EMOJI_ICONS[emotionId]}</span>
+                        <span className="">{emotion}</span>
+                      </div>
+                      <span className="text-black font-bold text-2xl">
+                        {frequency[emotion]}
+                      </span>
                     </div>
-                    <span className="text-black font-bold text-2xl">
-                      {frequency[emotion]}
-                    </span>
-                  </div>
-                );
-              })
+                  );
+                })
+              ) : (
+                <Loader />
+              )}
+            </div>
+          </div>
+          <div className="w-full h-[242px] bg-white border rounded-[24px] border-gray-200">
+            {frequency && Object.keys(frequency).length > 0 ? (
+              <PieChart data={pieData} />
             ) : (
               <Loader />
             )}
