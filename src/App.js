@@ -197,7 +197,7 @@ export default function App() {
         Facial Emotion Recognition System For Rehabilitation
       </h1>
       <h2 className="text-2xl font-bold space-x-6">
-        <span>CSMIR Lab</span>
+        <span>CISMR Lab</span>
         <span>Dr. Chandra Prakash</span>
       </h2>
       <p className="pb-6">{DESCRIPTION}</p>
