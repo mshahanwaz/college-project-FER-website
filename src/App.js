@@ -196,8 +196,10 @@ export default function App() {
       <h1 className="font-bold text-[48px] leading-[1.1] tracking-tight">
         Facial Emotion Recognition System For Rehabilitation
       </h1>
-      <h2 className="text-2xl font-bold space-x-6">
-        <span>CISMR Lab</span>
+      <h2 className="text-2xl font-bold flex gap-6 items-baseline">
+        <span>
+          Computational Intelligence & Smart Motion Research(CISMR) Lab
+        </span>
         <span>Dr. Chandra Prakash</span>
       </h2>
       <p className="pb-6">{DESCRIPTION}</p>
